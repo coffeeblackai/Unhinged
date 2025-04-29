@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unhinged</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: #4F46E5; /* Indigo 600 */
+            --primary-dark: #4338CA; /* Indigo 700 */
+            --primary-light: #818CF8; /* Indigo 400 */
+            --success-color: #10B981; /* Emerald 500 */
+            --warning-color: #F59E0B; /* Amber 500 */
+            --error-color: #EF4444; /* Red 500 */
+            --background-color: #F5F5F7; /* Slightly off-white background */
+            --card-color: #FFFFFF;
+            --text-primary: #1F2937; /* Gray 800 */
+            --text-secondary: #6B7280; /* Gray 500 */
+            --text-light: #9CA3AF; /* Gray 400 */
+            --border-color: #E5E7EB; /* Gray 200 */
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 375px;
+            margin: 0 auto;
+            padding: 0;
+            position: relative;
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: hidden;
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        
+        h1 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        /* Header Styles */
+        header {
+            padding: 0.75rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        /* Status Message */
+        .status {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 1;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .status.hidden {
+            opacity: 0;
+            transform: translateY(20px) translateX(-50%);
+            pointer-events: none;
+        }
+        
+        /* Screen Layout */
+        .screen-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 0.75rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateX(20px);
+            background-color: var(--background-color);
+            overflow-y: auto;
+            padding-bottom: 70px; /* Space for the footer */
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .screen::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+            z-index: 5;
+        }
+        
+        .screen-content {
+            flex: 1;
+        }
+        
+        .screen-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .screen-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .screen-footer {
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            bottom: 16px;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            z-index: 10;
+        }
+        
+        /* Button Styles */
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .nav-button {
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+        }
+        
+        .next {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .next:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .next:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .back {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .back:hover:not(:disabled) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .action-button {
+            padding: 0.875rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .primary-action {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.25);
+        }
+        
+        .primary-action:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+            box-shadow: 0 6px 10px rgba(79, 70, 229, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .secondary-action {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .secondary-action:hover:not(:disabled) {
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        
+        .success-action {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .danger-action {
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .range-value {
+            display: inline-block;
+            margin-left: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            min-width: 40px;
+            text-align: right;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #e6e6e6;
+            outline: none;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        /* Image upload area */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 1.75rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 1rem;
+        }
+        
+        .image-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1/1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        /* Summary box */
+        .summary-box {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .summary-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .summary-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Progress elements */
+        .progress-container {
+            margin: 1rem 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-title {
+            font-weight: 500;
+        }
+        
+        .progress-value {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .progress-bar-container {
+            height: 8px;
+            background-color: #e6e6e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+        
+        /* Animation for loading */
+        .loading-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spinner 1s linear infinite;
+        }
+        
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Mini stats cards */
+        .mini-stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .mini-stat-card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 0.75rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .mini-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+        
+        .likes .mini-stat-value {
+            color: var(--success-color);
+        }
+        
+        .dislikes .mini-stat-value {
+            color: var(--error-color);
+        }
+        
+        .similarity .mini-stat-value {
+            color: var(--primary-color);
+        }
+        
+        .mini-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        /* Log container */
+        .log-container {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            font-family: monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .log-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .log-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .log-entry {
+            padding: 0.375rem 0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        /* Decision card */
+        .decision-card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .decision-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        /* Compare visual */
+        .compare-visual {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        
+        .compare-images {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+        }
+        
+        .compare-image-container {
+            width: 120px;
+            height: 180px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+        
+        .compare-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .compare-arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            z-index: 2;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .compare-score {
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--background-color);
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .score-value {
+            margin-left: 0.5rem;
+        }
+        
+        /* Results screen */
+        .results-chart {
+            height: 24px;
+            background-color: var(--error-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .results-chart-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0; /* Set dynamically */
+            transition: width 1s ease-out;
+        }
+        
+        /* Similarity mode buttons */
+        .similarity-mode-button {
+            flex: 1;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .similarity-mode-button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Unhinged</h1>
+        </header>
+
+        <div class="screen-container">
+            <!-- Screen 1: Welcome -->
+            <div class="screen active" id="screen-welcome">
+                <div class="screen-content">
+                    <div class="screen-title">Unhinged</div>
+                    
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <img src="logo.png" style="width: 120px; height: 120px; display: block; margin: 0 auto 1rem;" />
+                        
+                        <div class="summary-box">
+                            <div class="summary-item">
+                                <div class="summary-label">1. Upload Reference Photos</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">2. Configure Settings</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">3. Start Automation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="screen-footer">
+                    <div></div>
+                    <button class="nav-button next" id="welcome-next">Get Started</button>
+                </div>
+            </div>
+            
+            <!-- Screen 2: Upload Reference Images -->
+            <div class="screen" id="screen-upload">
+                <div class="screen-content">
+                    <div class="screen-title">Upload Reference Images</div>
+                    <div class="screen-subtitle">Select photos similar to your type</div>
+                    
+                    <div class="upload-area" id="imageUploadArea">
+                        <div class="upload-icon">📷</div>
+                        <p style="font-weight: 500; margin-bottom: 0.5rem;">Drop your images here</p>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                            or click to browse files
+                        </p>
+                        <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;">
+                    </div>
+                    
+                    <div class="summary-box" style="margin-top: 1.5rem;">
+                        <div class="summary-item">
+                            <div class="summary-label">Selected Images</div>
+                            <div class="summary-value" id="image-count">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="images-grid" id="imagesGrid"></div>
+                </div>
+                
+                <div class="screen-footer">
+                    <button class="nav-button back" id="upload-back">Back</button>
+                    <button class="nav-button next" id="upload-next" disabled>Next</button>
+                </div>
+            </div>
+            
+            <!-- Screen 3: Configure Settings -->
+            <div class="screen" id="screen-settings">
+                <div class="screen-content">
+                    <div class="screen-title">Configure Settings</div>
+                    <div class="screen-subtitle">Fine-tune your automation preferences</div>
+                    
+                    <div class="summary-box">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span>Similarity Mode</span>
+                            </label>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button class="similarity-mode-button active" data-mode="similar">
+                                    Similar
+                                </button>
+                                <button class="similarity-mode-button" data-mode="very_similar">
+                                    Very Similar
+                                </button>
+                                <button class="similarity-mode-button" data-mode="clone">
+                                    Clone
+                                </button>
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                Choose how closely profiles should match your references
+                            </p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span>CoffeeBlack API Key</span>
+                            </label>
+                            <input type="text" id="coffeeBlackApiKey" placeholder="Enter your API key" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem;">
+                                <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                                    Required for automation to work
+                                </p>
+                                <a href="https://app.coffeeblack.ai/login" target="_blank" style="font-size: 0.75rem; color: var(--primary-color); text-decoration: none; font-weight: 500;">
+                                    Get API Key
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Maximum Swipes</label>
+                            <input type="number" id="maxSwipes" min="10" max="1000" value="100">
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                                Total number of profiles to evaluate
+                            </p>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">API Key Status</div>
+                            <div class="summary-value" id="summary-api-key-status">Not Set</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="screen-footer">
+                    <button class="nav-button back" id="settings-back">Back</button>
+                    <button class="nav-button next" id="settings-next">Next</button>
+                </div>
+            </div>
+            
+            <!-- Screen 4: Launch -->
+            <div class="screen" id="screen-launch">
+                <div class="screen-content">
+                    <div class="screen-title">Ready to Start</div>
+                    <div class="screen-subtitle">Review your configuration and launch</div>
+                    
+                    <div class="summary-box">
+                        <div class="summary-item">
+                            <div class="summary-label">Reference Images</div>
+                            <div class="summary-value" id="summary-images">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Similarity Mode</div>
+                            <div class="summary-value" id="summary-similarity-mode">Similar</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Maximum Swipes</div>
+                            <div class="summary-value" id="summary-max-swipes">100</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                            Before starting, make sure that:
+                        </p>
+                        <ul style="color: var(--text-secondary); padding-left: 1.5rem; margin-bottom: 2rem;">
+                            <li>iPhone Mirror is installed on your computer</li>
+                            <li>Your iPhone is connected to the same WiFi network</li>
+                            <li>Tinder app is installed on your iPhone</li>
+                        </ul>
+                        
+                        <button class="action-button primary-action" id="startButton">
+                            Start Automation
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="screen-footer">
+                    <button class="nav-button back" id="launch-back">Back</button>
+                    <div></div>
+                </div>
+            </div>
+            
+            <!-- Screen 5: iPhone Mirror Progress -->
+            <div class="screen" id="screen-iphone-mirror">
+                <div class="screen-content">
+                    <div class="screen-title">Connecting to Device</div>
+                    <div class="screen-subtitle">Opening iPhone Mirror app...</div>
+                    
+                    <div class="loading-animation">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span class="progress-title">Connection Progress</span>
+                            <span class="progress-value" id="iphone-mirror-progress-value">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="iphone-mirror-progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="log-container" id="logContainer" style="margin-top: 2rem;">
+                        <!-- Log entries will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Screen 6: Finding Tinder -->
+            <div class="screen" id="screen-find-tinder">
+                <div class="screen-content">
+                    <div class="screen-title">Locating Tinder</div>
+                    <div class="screen-subtitle">Finding and opening the Tinder app...</div>
+                    
+                    <div class="loading-animation">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span class="progress-title">Search Progress</span>
+                            <span class="progress-value" id="find-tinder-progress-value">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="find-tinder-progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="log-container" id="logContainer2" style="margin-top: 2rem;">
+                        <!-- Log entries will be added dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Screen 7: Active Swiping -->
+            <div class="screen" id="screen-swiping">
+                <div class="screen-content">
+                    <div class="screen-title">Swiping in Progress</div>
+                    <div class="screen-subtitle">Analyzing profiles and making decisions</div>
+                    
+                    <div class="mini-stats-container">
+                        <div class="mini-stat-card likes">
+                            <div class="mini-stat-value" id="mini-likes-count">0</div>
+                            <div class="mini-stat-label">LIKES</div>
+                        </div>
+                        <div class="mini-stat-card dislikes">
+                            <div class="mini-stat-value" id="mini-dislikes-count">0</div>
+                            <div class="mini-stat-label">DISLIKES</div>
+                        </div>
+                        <div class="mini-stat-card similarity">
+                            <div class="mini-stat-value" id="mini-avg-similarity">0.00</div>
+                            <div class="mini-stat-label">AVG MATCH</div>
+                        </div>
+                    </div>
+                    
+                    <div class="decision-card">
+                        <div class="decision-title">Latest Decision</div>
+                        <div id="lastDecisionContent">Waiting for first swipe...</div>
+                        
+                        <div class="compare-visual" id="compareVisual" style="display: none;">
+                            <div class="compare-images">
+                                <div class="compare-image-container">
+                                    <img id="referenceImage" class="compare-image" src="" alt="Reference">
+                                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; padding: 3px 6px; border-radius: 4px;">Ref</div>
+                                </div>
+                                <div class="compare-arrow">↔</div>
+                                <div class="compare-image-container">
+                                    <img id="screenshotImage" class="compare-image" src="" alt="Screenshot">
+                                    <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; font-size: 12px; padding: 3px 6px; border-radius: 4px;">Profile</div>
+                                </div>
+                            </div>
+                            <div class="compare-score">
+                                Match Score: <span class="score-value" id="compareScore">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-box" style="margin-top: 1rem;">
+                        <div class="summary-item">
+                            <button class="action-button secondary-action" id="pauseButton">Pause</button>
+                        </div>
+                        <div class="summary-item">
+                            <button class="action-button secondary-action" id="resumeButton" style="display: none;">Resume</button>
+                        </div>
+                        <div class="summary-item">
+                            <button class="action-button danger-action" id="stopButton">Stop & See Results</button>
+                        </div>
+                    </div>
+                    
+                    <div class="log-container" style="margin-top: 1rem;">
+                        <div class="log-title">
+                            <span>Activity Log</span>
+                            <small style="color: var(--text-secondary)">Latest events</small>
+                        </div>
+                        <div id="logContainer3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Screen 8: Results -->
+            <div class="screen" id="screen-results">
+                <div class="screen-content">
+                    <div class="screen-title">Automation Results</div>
+                    <div class="screen-subtitle">Your swiping session summary</div>
+                    
+                    <div class="mini-stats-container">
+                        <div class="mini-stat-card">
+                            <div class="mini-stat-value" id="results-total">0</div>
+                            <div class="mini-stat-label">PROFILES</div>
+                        </div>
+                        <div class="mini-stat-card likes">
+                            <div class="mini-stat-value" id="results-likes">0</div>
+                            <div class="mini-stat-label">LIKES</div>
+                        </div>
+                        <div class="mini-stat-card dislikes">
+                            <div class="mini-stat-value" id="results-dislikes">0</div>
+                            <div class="mini-stat-label">DISLIKES</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-box" style="margin-top: 1.5rem;">
+                        <div class="summary-item">
+                            <div class="summary-label">Like Ratio</div>
+                            <div class="summary-value" id="results-likes-percent">0%</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Dislike Ratio</div>
+                            <div class="summary-value" id="results-dislikes-percent">0%</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">Average Similarity</div>
+                            <div class="summary-value" id="results-avg-similarity">0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 1.5rem 0;">
+                        <div style="margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                            <span style="color: var(--success-color); font-weight: 500;">Likes</span>
+                            <span style="color: var(--error-color); font-weight: 500;">Dislikes</span>
+                        </div>
+                        <div class="results-chart">
+                            <div class="results-chart-bar" id="results-chart-likes" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="action-button primary-action" id="results-done">
+                        Start New Session
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status hidden"></div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const coffeeBlackApi = require('./coffeeblack-api');
+        const automationWorkflows = require('./automation-workflows');
+        
+        // DOM Elements - Tinder Tab
+        const imageUploadArea = document.getElementById('imageUploadArea');
+        const imageUploadInput = document.getElementById('imageUpload');
+        const imagesGrid = document.getElementById('imagesGrid');
+        const startButton = document.getElementById('startButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const resumeButton = document.getElementById('resumeButton');
+        const stopButton = document.getElementById('stopButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const logContainer = document.getElementById('logContainer');
+        const similarityThreshold = document.getElementById('similarityThreshold');
+        const delayBetweenSwipes = document.getElementById('delayBetweenSwipes');
+        const maxSwipes = document.getElementById('maxSwipes');
+        
+        // Screen elements
+        const screens = {
+            welcome: document.getElementById('screen-welcome'),
+            upload: document.getElementById('screen-upload'),
+            settings: document.getElementById('screen-settings'),
+            launch: document.getElementById('screen-launch'),
+            iphoneMirror: document.getElementById('screen-iphone-mirror'),
+            findTinder: document.getElementById('screen-find-tinder'),
+            swiping: document.getElementById('screen-swiping'),
+            results: document.getElementById('screen-results')
+        };
+        
+        // Navigation buttons
+        const welcomeNextBtn = document.getElementById('welcome-next');
+        const uploadBackBtn = document.getElementById('upload-back');
+        const uploadNextBtn = document.getElementById('upload-next');
+        const settingsBackBtn = document.getElementById('settings-back');
+        const settingsNextBtn = document.getElementById('settings-next');
+        const launchBackBtn = document.getElementById('launch-back');
+        const resultsDoneBtn = document.getElementById('results-done');
+        
+        // Mini-stats elements
+        const miniLikesCount = document.getElementById('mini-likes-count');
+        const miniDislikesCount = document.getElementById('mini-dislikes-count');
+        const miniAvgSimilarity = document.getElementById('mini-avg-similarity');
+        const lastDecisionContent = document.getElementById('lastDecisionContent');
+        
+        // Global variables for decision refresh
+        let decisionRefreshInterval = null;
+        const DECISION_REFRESH_INTERVAL = 2000; // 2 seconds
+        
+        // Function to navigate to a specific screen
+        function navigateToScreen(screenId) {
+            // Hide all screens
+            Object.values(screens).forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show the target screen
+            screens[screenId].classList.add('active');
+            
+            // Update UI based on the current screen
+            updateUIForScreen(screenId);
+        }
+        
+        // Update UI elements based on the current screen
+        function updateUIForScreen(screenId) {
+            // Enable/disable buttons based on current screen
+            if (screenId === 'upload') {
+                // Check if we have images uploaded
+                const hasImages = imagesGrid.children.length > 0;
+                uploadNextBtn.disabled = !hasImages;
+            }
+            
+            if (screenId === 'settings') {
+                // Load saved API key if available
+                loadSavedApiKey();
+            }
+            
+            if (screenId === 'launch') {
+                // Update summary
+                document.getElementById('summary-images').textContent = imagesGrid.children.length;
+                
+                // Get selected similarity mode
+                const activeButton = document.querySelector('.similarity-mode-button.active');
+                const modeName = activeButton ? activeButton.textContent.trim() : 'Similar';
+                document.getElementById('summary-similarity-mode').textContent = modeName;
+                
+                document.getElementById('summary-max-swipes').textContent = maxSwipes.value;
+                
+                // Check API key status and update UI
+                checkApiKeyStatus();
+            }
+        }
+        
+        // Save API key to storage and send to server
+        async function saveApiKey(apiKey) {
+            // Save to localStorage
+            localStorage.setItem('coffeeBlackApiKey', apiKey);
+            
+            // Send to main process
+            try {
+                const result = await ipcRenderer.invoke('set-coffeeblack-api-key', apiKey);
+                if (result.success) {
+                    showStatus('API key saved successfully');
+                } else {
+                    showStatus('Failed to save API key: ' + result.error);
+                }
+                return result;
+            } catch (error) {
+                console.error('Error saving API key:', error);
+                showStatus('Error saving API key');
+                return { success: false, error: error.message };
+            }
+        }
+        
+        // Load saved API key from storage
+        function loadSavedApiKey() {
+            const savedApiKey = localStorage.getItem('coffeeBlackApiKey') || '';
+            document.getElementById('coffeeBlackApiKey').value = savedApiKey;
+        }
+        
+        // Check API key status and update UI
+        async function checkApiKeyStatus() {
+            try {
+                const result = await ipcRenderer.invoke('get-coffeeblack-api-key-status');
+                const statusEl = document.getElementById('summary-api-key-status');
+                
+                if (result.success && result.apiKeySet) {
+                    statusEl.textContent = 'Valid';
+                    statusEl.style.color = 'var(--success-color)';
+                } else {
+                    statusEl.textContent = 'Not Set';
+                    statusEl.style.color = 'var(--error-color)';
+                }
+                
+                // Disable start button if API key not set
+                startButton.disabled = !(result.success && result.apiKeySet);
+                
+                return result.apiKeySet;
+            } catch (error) {
+                console.error('Error checking API key status:', error);
+                const statusEl = document.getElementById('summary-api-key-status');
+                statusEl.textContent = 'Error';
+                statusEl.style.color = 'var(--error-color)';
+                
+                // Disable start button
+                startButton.disabled = true;
+                
+                return false;
+            }
+        }
+        
+        // Setup navigation event listeners
+        function setupNavigation() {
+            // Welcome screen
+            welcomeNextBtn.addEventListener('click', () => navigateToScreen('upload'));
+            
+            // Upload screen
+            uploadBackBtn.addEventListener('click', () => navigateToScreen('welcome'));
+            uploadNextBtn.addEventListener('click', () => navigateToScreen('settings'));
+            
+            // API key input field - save on change/blur
+            document.getElementById('coffeeBlackApiKey').addEventListener('blur', (e) => {
+                const apiKey = e.target.value.trim();
+                if (apiKey) {
+                    saveApiKey(apiKey);
+                }
+            });
+            
+            // Settings screen
+            settingsBackBtn.addEventListener('click', () => navigateToScreen('upload'));
+            settingsNextBtn.addEventListener('click', async () => {
+                // Save API key before proceeding
+                const apiKey = document.getElementById('coffeeBlackApiKey').value.trim();
+                if (apiKey) {
+                    try {
+                        // First save the API key
+                        const saveResult = await saveApiKey(apiKey);
+                        if (!saveResult.success) {
+                            showStatus('Failed to save API key: ' + saveResult.error);
+                            return;
+                        }
+                        
+                        // Then check the API key status
+                        const statusResult = await checkApiKeyStatus();
+                        if (!statusResult) {
+                            showStatus('API key validation failed');
+                            return;
+                        }
+                        
+                        // If both operations succeeded, proceed to launch screen
+                        navigateToScreen('launch');
+                    } catch (error) {
+                        console.error('Error in API key setup:', error);
+                        showStatus('Error setting up API key');
+                    }
+                } else {
+                    // Show warning but allow to proceed
+                    showStatus('Warning: No API key provided. Automation will not work.', 3000);
+                    navigateToScreen('launch');
+                }
+            });
+            
+            // Launch screen
+            launchBackBtn.addEventListener('click', () => navigateToScreen('settings'));
+            
+            // Results screen
+            resultsDoneBtn.addEventListener('click', () => navigateToScreen('welcome'));
+            
+            // Image upload functionality
+            imageUploadArea.addEventListener('click', () => {
+                imageUploadInput.click();
+            });
+            
+            imageUploadInput.addEventListener('change', handleImageUpload);
+            
+            // Start button
+            startButton.addEventListener('click', startAutomation);
+            
+            // Control buttons
+            pauseButton.addEventListener('click', pauseAutomation);
+            resumeButton.addEventListener('click', resumeAutomation);
+            stopButton.addEventListener('click', stopAutomation);
+            
+            // Restart button
+            document.getElementById('restartButton').addEventListener('click', () => {
+                navigateToScreen('welcome');
+            });
+        }
+        
+        // Image upload handler
+        function handleImageUpload(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
+            // Convert FileList to array
+            const filesArray = Array.from(files);
+            
+            // Process each file
+            filesArray.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // Add the image directly without cropping
+                    addImageToGrid(event.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // Helper function to add image to grid
+        function addImageToGrid(imageDataUrl) {
+            const img = document.createElement('img');
+            img.src = imageDataUrl;
+            
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'image-item';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.addEventListener('click', function() {
+                imagesGrid.removeChild(imgContainer);
+                updateUIForScreen('upload');
+                
+                // Update image count
+                const imageCount = document.getElementById('image-count');
+                if (imageCount) {
+                    imageCount.textContent = imagesGrid.children.length;
+                }
+            });
+            
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(removeBtn);
+            imagesGrid.appendChild(imgContainer);
+            
+            // Enable next button if we have at least one image
+            uploadNextBtn.disabled = false;
+            
+            // Update image count
+            const imageCount = document.getElementById('image-count');
+            if (imageCount) {
+                imageCount.textContent = imagesGrid.children.length;
+            }
+
+            // Save reference image to disk
+            saveReferenceImage(imageDataUrl);
+        }
+        
+        // Save reference image to disk with unique filename
+        function saveReferenceImage(imageDataUrl) {
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Create references folder if it doesn't exist
+            const referencesDir = path.join(__dirname, '../../references');
+            if (!fs.existsSync(referencesDir)) {
+                fs.mkdirSync(referencesDir, { recursive: true });
+            }
+            
+            // Generate unique filename
+            const timestamp = new Date().getTime();
+            const randomId = Math.floor(Math.random() * 10000);
+            const filename = `reference-${timestamp}-${randomId}.jpg`;
+            const filePath = path.join(referencesDir, filename);
+            
+            // Save image to disk
+            const imageData = imageDataUrl.replace(/^data:image\/\w+;base64,/, '');
+            fs.writeFileSync(filePath, Buffer.from(imageData, 'base64'));
+            
+            // Store the file path as a data attribute on the image
+            const imgElement = imagesGrid.lastElementChild.querySelector('img');
+            imgElement.dataset.filepath = filePath;
+            
+            addLogEntry(`Reference image saved: ${filename}`);
+        }
+        
+        // Automation control functions
+        async function startAutomation() {
+            showStatus('Starting automation...');
+            
+            try {
+                // Check API key status first
+                const apiKeyStatus = await checkApiKeyStatus();
+                if (!apiKeyStatus) {
+                    showStatus('API key is required to start automation');
+                    return;
+                }
+                
+                // Get selected similarity mode
+                const activeButton = document.querySelector('.similarity-mode-button.active');
+                const similarityMode = activeButton ? activeButton.dataset.mode : 'similar';
+                
+                // Get reference images
+                const referenceImages = getReferencesImagesList();
+                if (!referenceImages || referenceImages.length === 0) {
+                    showStatus('No reference images available');
+                    return;
+                }
+                
+                // Gather configuration
+                const config = {
+                    similarityMode: similarityMode,
+                    maxSwipes: parseInt(maxSwipes.value),
+                    referenceImages: referenceImages
+                };
+                
+                console.log('Starting automation with config:', config);
+                
+                // Call the backend
+                const response = await ipcRenderer.invoke('cb-start-tinder', config);
+                console.log('Start automation response:', response);
+                
+                if (response.success) {
+                    navigateToScreen('iphoneMirror');
+                    simulateAutomationProgress();
+                    
+                    // Start auto-refreshing the decision display
+                    startDecisionRefresh();
+                } else {
+                    showStatus('Failed to start automation: ' + (response.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error starting automation:', error);
+                showStatus('Error starting automation: ' + error.message);
+            }
+        }
+        
+        function pauseAutomation() {
+            showStatus('Pausing automation...');
+            
+            // Temporarily stop refreshing decisions during pause
+            stopDecisionRefresh();
+            
+            ipcRenderer.invoke('cb-pause-tinder')
+                .then(response => {
+                    if (response.success) {
+                        pauseButton.style.display = 'none';
+                        resumeButton.style.display = 'block';
+                        addLogEntry('Automation paused');
+                    } else {
+                        showStatus('Failed to pause: ' + response.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error pausing automation:', error);
+                    showStatus('Error pausing automation');
+                });
+        }
+        
+        function resumeAutomation() {
+            showStatus('Resuming automation...');
+            
+            ipcRenderer.invoke('cb-resume-tinder')
+                .then(response => {
+                    if (response.success) {
+                        pauseButton.style.display = 'block';
+                        resumeButton.style.display = 'none';
+                        addLogEntry('Automation resumed');
+                        
+                        // Restart the decision refresh interval
+                        startDecisionRefresh();
+                    } else {
+                        showStatus('Failed to resume: ' + response.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error resuming automation:', error);
+                    showStatus('Error resuming automation');
+                });
+        }
+        
+        function stopAutomation() {
+            showStatus('Stopping automation...');
+            
+            // Stop the decision refresh interval
+            stopDecisionRefresh();
+            
+            // Refresh the latest decision display immediately
+            refreshLatestDecision();
+            
+            ipcRenderer.invoke('cb-stop-tinder')
+                .then(response => {
+                    console.log('Stop automation response:', JSON.stringify(response, null, 2));
+                    if (response.success) {
+                        // Add a final log entry
+                        addLogEntry('Automation stopped by user');
+                        
+                        // Fetch the final stats before showing results
+                        ipcRenderer.invoke('cb-get-tinder-stats')
+                            .then(statsResponse => {
+                                if (statsResponse.success) {
+                                    // One final refresh of the latest decision 
+                                    refreshLatestDecision();
+                                    
+                                    // Combine the stop response and stats response
+                                    const combinedData = {
+                                        ...response,
+                                        stats: statsResponse.stats || response.stats || {},
+                                        similarity_metrics: statsResponse.similarity_metrics || response.similarity_metrics || {},
+                                        recent_decisions: statsResponse.recent_decisions || response.recent_decisions || []
+                                    };
+                                    showResults(combinedData);
+                                } else {
+                                    // Use original response if stats fetch fails
+                                    showResults(response);
+                                }
+                                cleanupResources();
+                            })
+                            .catch(error => {
+                                console.error('Error getting final stats:', error);
+                                showResults(response);
+                                cleanupResources();
+                            });
+                    } else {
+                        showStatus('Failed to stop: ' + (response.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error stopping automation:', error);
+                    showStatus('Error stopping automation');
+                });
+        }
+        
+        // Function to handle automation completion (either by reaching max swipes or error)
+        function handleAutomationComplete(response) {
+            console.log('Automation complete:', JSON.stringify(response, null, 2));
+            
+            // Add a log entry
+            addLogEntry('Automation complete: ' + (response.reason || 'Max swipes reached'));
+            
+            // Show the results
+            showResults(response);
+            
+            // Clean up any temporary resources
+            cleanupResources();
+        }
+        
+        // Clean up temporary resources
+        function cleanupResources() {
+            // Clean up any temporary files or resources
+            ipcRenderer.invoke('cb-cleanup-resources')
+                .then(response => {
+                    if (response.success) {
+                        addLogEntry('Resources cleaned up successfully');
+                        console.log('Cleanup details:', response.details);
+                    } else {
+                        console.error('Failed to clean up resources:', response.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error cleaning up resources:', error);
+                });
+        }
+        
+        // Utility functions
+        function showStatus(message, duration = 3000) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.classList.remove('hidden');
+            
+            // Clear any existing timeout
+            if (statusMessage.hideTimeout) {
+                clearTimeout(statusMessage.hideTimeout);
+            }
+            
+            // Set new timeout
+            statusMessage.hideTimeout = setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, duration);
+        }
+        
+        function addLogEntry(message) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            
+            // Determine which log container to use based on active screen
+            let targetContainer;
+            if (screens.iphoneMirror.classList.contains('active')) {
+                targetContainer = document.getElementById('logContainer');
+            } else if (screens.findTinder.classList.contains('active')) {
+                targetContainer = document.getElementById('logContainer2');
+            } else {
+                targetContainer = document.getElementById('logContainer3');
+            }
+            
+            // Add to selected container and scroll to bottom
+            if (targetContainer) {
+                // Check if this is a duplicate entry
+                const lastEntry = targetContainer.lastElementChild;
+                if (!lastEntry || lastEntry.textContent !== entry.textContent) {
+                    targetContainer.appendChild(entry);
+                    targetContainer.scrollTop = targetContainer.scrollHeight;
+                    
+                    // Limit log entries to prevent performance issues (keep last 50)
+                    while (targetContainer.children.length > 50) {
+                        targetContainer.removeChild(targetContainer.firstChild);
+                    }
+                }
+            }
+        }
+        
+        // Get file paths of reference images from the grid
+        function getReferencesImagesList() {
+            // Collect all images from the grid with their file paths
+            const images = Array.from(imagesGrid.querySelectorAll('img'));
+            
+            // Return file paths if available, otherwise use src
+            const referenceImages = images.map(img => {
+                if (img.dataset.filepath) {
+                    return {
+                        type: 'file',
+                        path: img.dataset.filepath,
+                        // Include the image data as base64 to ensure it's available
+                        data: img.src
+                    };
+                } else {
+                    // Fallback to src if filepath not available
+                    return {
+                        type: 'data',
+                        data: img.src
+                    };
+                }
+            });
+            
+            console.log(`Collected ${referenceImages.length} reference images`);
+            return referenceImages;
+        }
+        
+        // For demonstration, simulate the automation progress
+        function simulateAutomationProgress() {
+            // iPhone Mirror screen - simulate connection (10 seconds)
+            let progress = 0;
+            const mirrorProgressBar = document.getElementById('iphone-mirror-progress-bar');
+            const mirrorProgressValue = document.getElementById('iphone-mirror-progress-value');
+            
+            const statusMessages = [
+                'Connecting to iPhone Mirror...',
+                'Establishing connection...',
+                'Initializing screen mirroring...',
+                'Waiting for device response...',
+                'Setting up control interface...'
+            ];
+            
+            let currentMessageIndex = 0;
+            
+            // Display initial message
+            addLogEntry(statusMessages[currentMessageIndex]);
+            
+            const mirrorProgressInterval = setInterval(() => {
+                // Increment by 2 for about 10 seconds total
+                progress += 2;
+                mirrorProgressBar.style.width = `${progress}%`;
+                mirrorProgressValue.textContent = `${progress}%`;
+                
+                // Change message every 20% (every 10 progress points)
+                if (progress % 20 === 0 && currentMessageIndex < statusMessages.length - 1) {
+                    currentMessageIndex++;
+                    addLogEntry(statusMessages[currentMessageIndex]);
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(mirrorProgressInterval);
+                    addLogEntry('Connection established successfully');
+                    setTimeout(() => {
+                        navigateToScreen('findTinder');
+                        simulateFindTinder();
+                    }, 500);
+                }
+            }, 200); // 50 iterations * 200ms = 10 seconds
+        }
+        
+        function simulateFindTinder() {
+            // Find Tinder screen - simulate searching (20 seconds total)
+            let progress = 0;
+            const tinderProgressBar = document.getElementById('find-tinder-progress-bar');
+            const tinderProgressValue = document.getElementById('find-tinder-progress-value');
+            
+            const statusMessages = [
+                'Searching for Tinder app...',
+                'Connecting to iPhone screen...',
+                'Analyzing screen content...',
+                'Locating Tinder icon...',
+                'Opening Tinder application...',
+                'Waiting for Tinder to load...',
+                'Checking for profiles...',
+                'Preparing swipe interface...'
+            ];
+            
+            let currentMessageIndex = 0;
+            
+            // Display initial message
+            addLogEntry(statusMessages[currentMessageIndex]);
+            
+            // Update progress more slowly (every 300ms)
+            const tinderProgressInterval = setInterval(() => {
+                // Increase by smaller increments for a 20-second duration
+                progress += 1;
+                tinderProgressBar.style.width = `${progress}%`;
+                tinderProgressValue.textContent = `${progress}%`;
+                
+                // Change status message every ~2.5 seconds (every ~8 progress points)
+                if (progress % 12 === 0 && currentMessageIndex < statusMessages.length - 1) {
+                    currentMessageIndex++;
+                    addLogEntry(statusMessages[currentMessageIndex]);
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(tinderProgressInterval);
+                    setTimeout(() => {
+                        navigateToScreen('swiping');
+                        simulateSwiping();
+                    }, 500);
+                }
+            }, 200); // This will make it take ~20 seconds (100 * 200ms = 20000ms)
+        }
+        
+        function simulateSwiping() {
+            // Start stats updating
+            addLogEntry('Starting profile analysis...');
+            
+            // Get initial stats
+            updateStats();
+            
+            // Setup periodic stats updates
+            const statsInterval = setInterval(() => {
+                updateStats();
+                
+                // Also explicitly refresh the latest decision display
+                refreshLatestDecision();
+                
+                // Check if automation has finished
+                ipcRenderer.invoke('cb-get-tinder-stats')
+                    .then(response => {
+                        if (response && response.success) {
+                            // Update the screen with the latest data
+                            if (response.stats) {
+                                miniLikesCount.textContent = response.stats.likes || 0;
+                                miniDislikesCount.textContent = response.stats.dislikes || 0;
+                            }
+                            
+                            if (response.similarity_metrics) {
+                                miniAvgSimilarity.textContent = 
+                                    (response.similarity_metrics.total_avg_similarity || 0).toFixed(2);
+                            }
+                            
+                            // Check if automation is still running
+                            if (response.state && response.state.running === false) {
+                                // Automation has stopped
+                                clearInterval(statsInterval);
+                                addLogEntry('Automation complete - showing results');
+                                
+                                // Show results after a short delay
+                                setTimeout(() => {
+                                    handleAutomationComplete(response);
+                                }, 1000);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking automation status:', error);
+                        // Stop polling on error
+                        clearInterval(statsInterval);
+                    });
+                
+            }, 3000); // Update stats every 3 seconds
+        }
+        
+        function updateStats() {
+            ipcRenderer.invoke('cb-get-tinder-stats')
+                .then(response => {
+                    if (response.success) {
+                        // Update mini stats
+                        const stats = response.stats || {};
+                        const similarityMetrics = response.similarity_metrics || {};
+                        
+                        miniLikesCount.textContent = stats.likes || 0;
+                        miniDislikesCount.textContent = stats.dislikes || 0;
+                        miniAvgSimilarity.textContent = 
+                            (similarityMetrics.total_avg_similarity || 0).toFixed(2);
+                        
+                        // Update last decision with most recent
+                        if (response.recent_decisions && response.recent_decisions.length > 0) {
+                            const lastDecision = response.recent_decisions[0];
+                            const emoji = lastDecision.decision === 'like' ? '💚' : '❌';
+                            const action = lastDecision.decision === 'like' ? 'RIGHT' : 'LEFT';
+                            const similarity = (lastDecision.similarity || 0).toFixed(3);
+                            
+                            // Create a unique identifier for this decision that includes more information
+                            // Use timestamp if available, or create a new one
+                            const decisionTimestamp = lastDecision.timestamp || Date.now();
+                            const currentDecisionId = `${lastDecision.profile_id || 'unknown'}-${decisionTimestamp}`;
+                            const lastDisplayedDecisionId = lastDecisionContent.dataset.decisionId || '';
+                            
+                            // Update the decision content with a data attribute to track the current decision
+                            lastDecisionContent.dataset.decisionId = currentDecisionId;
+                            lastDecisionContent.innerHTML = `
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 24px;">${emoji}</span>
+                                    <div>
+                                        <div>Swiped ${action}</div>
+                                        <div style="color: #666; font-size: 12px;">Similarity: ${similarity}</div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Check if comparison visual elements exist before updating
+                            const compareVisual = document.getElementById('compareVisual');
+                            const referenceImage = document.getElementById('referenceImage');
+                            const screenshotImage = document.getElementById('screenshotImage');
+                            const compareScore = document.getElementById('compareScore');
+                            
+                            // Update comparison visual if images are available and elements exist
+                            if (compareVisual && referenceImage && screenshotImage && compareScore) {
+                                // Check if both images exist in the data
+                                if (lastDecision.reference_image && lastDecision.screenshot) {
+                                    document.getElementById('compareVisual').style.display = 'flex';
+                                    document.getElementById('referenceImage').src = lastDecision.reference_image;
+                                    document.getElementById('screenshotImage').src = lastDecision.screenshot;
+                                    document.getElementById('compareScore').textContent = similarity;
+                                    
+                                    // Color the score based on value
+                                    const scoreElement = document.getElementById('compareScore');
+                                    if (parseFloat(similarity) >= 0.7) {
+                                        scoreElement.style.color = 'var(--success-color)';
+                                    } else if (parseFloat(similarity) >= 0.5) {
+                                        scoreElement.style.color = 'var(--warning-color)';
+                                    } else {
+                                        scoreElement.style.color = 'var(--error-color)';
+                                    }
+                                } else {
+                                    // Handle missing images
+                                    console.log('Missing images in decision data');
+                                    compareVisual.style.display = 'none';
+                                }
+                            } else {
+                                console.log('Comparison visual elements not found in DOM');
+                            }
+                            
+                            // Log for debugging
+                            addLogEntry(`Updated decision display (${currentDecisionId}) - Similarity: ${similarity}`);
+                        }
+                    } else {
+                        console.error('Failed to get stats:', response.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error getting stats:', error);
+                });
+        }
+        
+        // Function to refresh the latest decision display
+        function refreshLatestDecision() {
+            console.log('Refreshing latest decision...');
+            ipcRenderer.invoke('cb-get-tinder-stats')
+                .then(response => {
+                    console.log('Received stats response:', JSON.stringify(response.recent_decisions ? { 
+                        count: response.recent_decisions.length,
+                        first_decision_keys: response.recent_decisions[0] ? Object.keys(response.recent_decisions[0]) : [] 
+                    } : 'No decisions'));
+                    
+                    if (response.success && response.recent_decisions && response.recent_decisions.length > 0) {
+                        const lastDecision = response.recent_decisions[0];
+                        
+                        // Create visual elements
+                        const emoji = lastDecision.decision === 'like' ? '💚' : '❌';
+                        const action = lastDecision.decision === 'like' ? 'RIGHT' : 'LEFT';
+                        
+                        // Use similarity directly now that we're not using inverted similarity
+                        const similarity = (lastDecision.similarity || 0).toFixed(3);
+                        
+                        // Create a unique identifier for this decision that includes more information
+                        // Use timestamp if available, or create a new one
+                        const decisionTimestamp = lastDecision.timestamp || Date.now();
+                        const currentDecisionId = `${lastDecision.profile_id || 'unknown'}-${decisionTimestamp}`;
+                        const lastDisplayedDecisionId = lastDecisionContent.dataset.decisionId || '';
+                        
+                        // Update the decision content with a data attribute to track the current decision
+                        lastDecisionContent.dataset.decisionId = currentDecisionId;
+                        lastDecisionContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 24px;">${emoji}</span>
+                                <div>
+                                    <div>Swiped ${action}</div>
+                                    <div style="color: #666; font-size: 12px;">Similarity: ${similarity}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Check if comparison visual elements exist before updating
+                        const compareVisual = document.getElementById('compareVisual');
+                        const referenceImage = document.getElementById('referenceImage');
+                        const screenshotImage = document.getElementById('screenshotImage');
+                        const compareScore = document.getElementById('compareScore');
+                        
+                        // Update comparison visual if images are available and elements exist
+                        if (compareVisual && referenceImage && screenshotImage && compareScore) {
+                            // Check if both images exist in the data
+                            if (lastDecision.reference_image && lastDecision.screenshot) {
+                                document.getElementById('compareVisual').style.display = 'flex';
+                                document.getElementById('referenceImage').src = lastDecision.reference_image;
+                                document.getElementById('screenshotImage').src = lastDecision.screenshot;
+                                document.getElementById('compareScore').textContent = similarity;
+                                
+                                // Color the score based on value
+                                const scoreElement = document.getElementById('compareScore');
+                                if (parseFloat(similarity) >= 0.7) {
+                                    scoreElement.style.color = 'var(--success-color)';
+                                } else if (parseFloat(similarity) >= 0.5) {
+                                    scoreElement.style.color = 'var(--warning-color)';
+                                } else {
+                                    scoreElement.style.color = 'var(--error-color)';
+                                }
+                            } else {
+                                // Handle missing images
+                                console.log('Missing images in decision data');
+                                compareVisual.style.display = 'none';
+                            }
+                        } else {
+                            console.log('Comparison visual elements not found in DOM');
+                        }
+                        
+                        // Log for debugging
+                        addLogEntry(`Updated decision display (${currentDecisionId}) - Similarity: ${similarity}`);
+                    } else {
+                        console.log('No decisions available or invalid response format');
+                        if (!response.success) {
+                            console.error('Error in stats response:', response.error);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing latest decision:', error);
+                });
+        }
+        
+        function showResults(data) {
+            // Navigate to results screen
+            navigateToScreen('results');
+            
+            console.log('Results data:', JSON.stringify(data, null, 2));
+            
+            // Update results screen with stats
+            const stats = data.stats || {};
+            const similarityMetrics = data.similarity_metrics || {};
+            
+            // Ensure we have proper values for all stats
+            const totalProfiles = parseInt(stats.total_profiles || stats.likes + stats.dislikes || 0);
+            const likes = parseInt(stats.likes || 0);
+            const dislikes = parseInt(stats.dislikes || 0);
+            
+            // Update stat counters with defensive coding
+            document.getElementById('results-total').textContent = totalProfiles;
+            document.getElementById('results-likes').textContent = likes;
+            document.getElementById('results-dislikes').textContent = dislikes;
+            
+            // Calculate percentages safely
+            const likesPercent = totalProfiles > 0 ? Math.round((likes / totalProfiles) * 100) : 0;
+            const dislikesPercent = totalProfiles > 0 ? 100 - likesPercent : 0;
+            
+            document.getElementById('results-likes-percent').textContent = likesPercent + '%';
+            document.getElementById('results-dislikes-percent').textContent = dislikesPercent + '%';
+            
+            // Update chart
+            document.getElementById('results-chart-likes').style.width = likesPercent + '%';
+            
+            // Handle runtime formatting
+            let runtime = '00:00:00';
+            if (stats.runtime) {
+                // If runtime is already formatted, use it directly
+                runtime = stats.runtime;
+            } else if (stats.start_time && stats.end_time) {
+                // Calculate runtime from timestamps
+                const startTime = new Date(stats.start_time);
+                const endTime = new Date(stats.end_time);
+                const durationMs = endTime - startTime;
+                
+                // Format duration as HH:MM:SS
+                const seconds = Math.floor((durationMs / 1000) % 60);
+                const minutes = Math.floor((durationMs / (1000 * 60)) % 60);
+                const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                
+                runtime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else if (stats.duration_seconds) {
+                // Convert seconds to HH:MM:SS
+                const seconds = Math.floor(stats.duration_seconds % 60);
+                const minutes = Math.floor((stats.duration_seconds / 60) % 60);
+                const hours = Math.floor(stats.duration_seconds / 3600);
+                
+                runtime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            document.getElementById('results-time').textContent = runtime;
+            
+            // Show average similarity with better fallbacks
+            let avgSimilarity = 0;
+            
+            if (similarityMetrics && 'total_avg_similarity' in similarityMetrics) {
+                avgSimilarity = similarityMetrics.total_avg_similarity || 0;
+            } else if (similarityMetrics && 'likes_avg' in similarityMetrics && 'dislikes_avg' in similarityMetrics) {
+                // Calculate weighted average if individual averages are available
+                const likesAvg = similarityMetrics.likes_avg || 0;
+                const dislikesAvg = similarityMetrics.dislikes_avg || 0;
+                
+                if (likes > 0 || dislikes > 0) {
+                    avgSimilarity = ((likesAvg * likes) + (dislikesAvg * dislikes)) / (likes + dislikes);
+                }
+            }
+            
+            document.getElementById('results-avg-similarity').textContent = avgSimilarity.toFixed(2);
+            
+            // Colorize based on value
+            const similarityElement = document.getElementById('results-avg-similarity');
+            if (avgSimilarity >= 0.7) {
+                similarityElement.style.color = '#4CAF50'; // Green for high similarity
+            } else if (avgSimilarity >= 0.5) {
+                similarityElement.style.color = '#FF9800'; // Orange for medium similarity
+            } else {
+                similarityElement.style.color = '#F44336'; // Red for low similarity
+            }
+        }
+        
+        // This function will be used to crop screenshots during automation
+        function cropScreenshot(screenshotDataUrl) {
+            return new Promise((resolve, reject) => {
+                // Use the main process for cropping via IPC
+                ipcRenderer.invoke('crop-tinder-profile', screenshotDataUrl)
+                    .then(result => {
+                        if (result.success) {
+                            resolve(result.croppedImage);
+                        } else {
+                            console.error('Error cropping image:', result.error);
+                            resolve(screenshotDataUrl); // Fall back to original image
+                        }
+                    })
+                    .catch(error => {
+                        console.error('IPC error during cropping:', error);
+                        resolve(screenshotDataUrl); // Fall back to original image
+                    });
+            });
+        }
+        
+        // Save screenshots to debug folder - simplified to just use IPC
+        function saveDebugScreenshot(originalImage, croppedImage) {
+            // Debug message for UI
+            addLogEntry(`Processing screenshots for comparison`);
+            console.log('Screenshots processed for comparison');
+        }
+        
+        // Setup similarity mode buttons
+        document.querySelectorAll('.similarity-mode-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.similarity-mode-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+            });
+        });
+        
+        // Start auto-refreshing decisions
+        function startDecisionRefresh() {
+            // Clear any existing interval first
+            stopDecisionRefresh();
+            
+            // Start a new interval
+            decisionRefreshInterval = setInterval(() => {
+                refreshLatestDecision();
+            }, DECISION_REFRESH_INTERVAL);
+            
+            addLogEntry('Started auto-refreshing decisions');
+            console.log('Decision refresh started');
+        }
+        
+        // Stop auto-refreshing decisions
+        function stopDecisionRefresh() {
+            if (decisionRefreshInterval) {
+                clearInterval(decisionRefreshInterval);
+                decisionRefreshInterval = null;
+                console.log('Decision refresh stopped');
+            }
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            setupNavigation();
+            navigateToScreen('welcome');
+        });
+    </script>
+</body>
+</html>

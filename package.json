@@ -1,0 +1,91 @@
+{
+  "name": "unhinged",
+  "version": "1.0.0",
+  "description": "Unhinged automates the matchmaking process",
+  "main": "src/electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "npm run bundle-python && electron .",
+    "build": "electron-builder",
+    "build:mac": "npm run bundle-python && electron-builder --mac",
+    "build:mac:universal": "npm run build:mac:arm64 && npm run build:mac:x64",
+    "build:mac:arm64": "npm run bundle-python && electron-builder --mac --arm64",
+    "build:mac:x64": "npm run bundle-python && electron-builder --mac --x64",
+    "build:mac:signed": "npm run bundle-python && electron-builder --mac",
+    "build:win": "npm run bundle-python && electron-builder --win",
+    "build:linux": "npm run bundle-python && electron-builder --linux",
+    "bundle-python": "node scripts/bundle-python.js",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.4.7",
+    "electron-is-dev": "^2.0.0",
+    "form-data": "^4.0.2"
+  },
+  "devDependencies": {
+    "@electron/notarize": "^2.2.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.electron.unhinged",
+    "productName": "Unhinged",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.lifestyle",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64",
+            "universal"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "entitlements.plist",
+      "entitlementsInherit": "entitlements.plist",
+      "icon": "src/electron/logo-white-bg.png",
+      "x64ArchFiles": "**/python_packages/**/?(.)*.{so,dylib}",
+      "timestamp": "http://timestamp.apple.com/ts01",
+      "signIgnore": [
+        "^node_modules/.*",
+        ".*\\.pak$"
+      ]
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "src/electron/logo-white-bg.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "src/electron/logo-white-bg.png"
+    },
+    "extraResources": [
+      {
+        "from": "src/python",
+        "to": "python"
+      },
+      {
+        "from": "python_packages",
+        "to": "python_packages"
+      }
+    ],
+    "npmRebuild": true,
+    "buildDependenciesFromSource": true,
+    "asar": true,
+    "afterSign": "scripts/notarize-hook.js"
+  }
+}
